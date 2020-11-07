@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: icinga-web
+spec:
+  selector:
+    app: icinga-web
+  type: LoadBalancer
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: icinga-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: icinga-web
+  template:
+    metadata:
+      labels:
+        app: icinga-web
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm
+      hostname: icinga-web
+      initContainers:
+      - name: init-postgres-ido
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -zv -w 1 postgres-ido 5432; do echo waiting for postgres-ido; sleep 2; done;']
+      - name: init-postgres-web
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -zv -w 1 postgres-web 5432; do echo waiting for postgres-web; sleep 2; done;']
+      - name: init-icinga-web-fpm
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -zv -w 1 icinga-web-fpm 9000; do echo waiting for icinga-web-fpm; sleep 2; done;']
+      containers:
+      - name: icinga-web
+        image: registry.thesniderpad.com/icinga-web:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d/default.conf
+          name: nginx-webconfig
+          subPath: nginx-default.conf
+        - mountPath: /etc/ssl/certs
+          name: certificates
+        - mountPath: /etc/icingaweb2/resources.ini
+          name: config
+          subPath: resources.ini
+        readinessProbe:
+          httpGet:
+            path: /nginx-health
+            port: 443
+            scheme: HTTPS
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        livenessProbe:
+          httpGet:
+            path: /nginx-health
+            port: 443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: nginx-webconfig
+        configMap:
+          name: nginx-webconfig
+      - name: certificates
+        secret:
+          secretName: icinga-pri-thesniderpad-com-tls
+          # defaultMode: 0400  # 0400
+      - name: config
+        configMap:
+          name: config

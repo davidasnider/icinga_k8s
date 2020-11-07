@@ -1,0 +1,25 @@
+---
+# Include bases
+bases:
+- ../bases
+
+# namespace to deploy all Resources to
+namespace: icinga
+
+resources:
+- kube-icinga.yaml
+- certificate.yaml
+
+patchesStrategicMerge:
+- secondary.yaml
+
+configMapGenerator:
+- name: nginx-webconfig
+  files:
+    - "nginx-default.conf"
+
+secretGenerator:
+- name: icinga-credentials
+  literals:
+  - username=root
+  - password=thisisnottherealpassword # pragma: allowlist secret

@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: icinga-pri-thesniderpad-com
+spec:
+  secretName: icinga-pri-thesniderpad-com-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: icinga-pri.thesniderpad.com
+  dnsNames:
+  - icinga-pri.thesniderpad.com

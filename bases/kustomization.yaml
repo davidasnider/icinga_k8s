@@ -1,0 +1,44 @@
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# list of Resource Config to be Applied
+resources:
+- namespace.yaml
+- postgres-ido.yaml
+- postgres-web.yaml
+- icinga-server.yaml
+- icinga-web.yaml
+- icinga-web-fpm.yaml
+
+# namespace to deploy all Resources to
+namespace: icinga
+
+# Create Secrets
+secretGenerator:
+- name: postgres-icinga
+  files:
+    - "password"
+- name: ido-pgsql
+  files:
+    - "ido-pgsql.conf"
+
+#  Create config maps
+configMapGenerator:
+- name: postgres-initdb-ido
+  files:
+    - "postgres-ido.sql"
+- name: postgres-initdb-web
+  files:
+    - "1-pgsql-web.sql"
+    - "2-create_web_user.sh"
+- name: icinga-server-api-users
+  files:
+    - "api-users.conf"
+- name: config
+  files:
+    - "resources.ini"
+    - "commandtransports.ini"
+    - "icinga_check_netatmo.py"
+    - "ifttt-webhook-host-notification.sh"
+    - "ifttt-webhook-service-notification.sh"

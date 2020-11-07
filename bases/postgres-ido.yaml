@@ -1,0 +1,79 @@
+
+# Create the Postgres ido database and services
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-ido
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: postgres-ido
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-ido
+spec:
+  selector:
+    matchLabels:
+      app: postgres-ido
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgres-ido
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm
+      containers:
+      - image: postgres:alpine
+        imagePullPolicy: Always
+        # args:
+        # - "--ignore-db-dir=lost+found"
+        name: postgres-ido
+        env:
+          # Use secret in real usage
+        - name: "POSTGRES_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: postgres-icinga
+              key: password
+        - name: "POSTGRES_DB"
+          value: icinga_ido
+        - name: "POSTGRES_USER"
+          value: icinga_ido
+        ports:
+        - containerPort: 5432
+          name: postgres-ido
+        volumeMounts:
+        - name: postgres-persistent-storage
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-initdb-ido
+          mountPath: /docker-entrypoint-initdb.d
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - psql -w -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c 'SELECT 1'
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - psql -w -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c 'SELECT 1'
+          initialDelaySeconds: 45
+          timeoutSeconds: 2
+      volumes:
+      - name: postgres-persistent-storage
+      - name: postgres-initdb-ido
+        configMap:
+          name: postgres-initdb-ido

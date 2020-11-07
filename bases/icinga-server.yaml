@@ -1,0 +1,82 @@
+# Create the Icinga Server services
+apiVersion: v1
+kind: Service
+metadata:
+  name: icinga-server
+spec:
+  ports:
+    - port: 5665
+      name: api
+  selector:
+    app: icinga-server
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: icinga-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: icinga-server
+  template:
+    metadata:
+      labels:
+        app: icinga-server
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm
+      hostname: icinga-server
+      initContainers:
+      - name: init-postgres-ido
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -zv -w 1 postgres-ido 5432; do echo waiting for postgres-ido; sleep 2; done;']
+      containers:
+      - name: icinga-server
+        image: registry.thesniderpad.com/icinga-server:latest
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: /etc/icinga2/features-available/ido-pgsql.conf
+            name: ido-pgsql
+            subPath: ido-pgsql.conf
+          - mountPath: /etc/icinga2/conf.d/api-users.conf
+            name: icinga-server-api-users
+            subPath: api-users.conf
+          - mountPath: /etc/icinga2/scripts/icinga_check_netatmo.py
+            name: config
+            subPath: icinga_check_netatmo.py
+          - mountPath: /etc/icinga2/scripts/ifttt-webhook-host-notification.sh
+            name: config
+            subPath: ifttt-webhook-host-notification.sh
+          - mountPath: /etc/icinga2/scripts/ifttt-webhook-service-notification.sh
+            name: config
+            subPath: ifttt-webhook-service-notification.sh
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - curl -s https://localhost:5665/v1/status --insecure | grep -q Unauthorized
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - icinga2 daemon -C
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: ido-pgsql
+        secret:
+          secretName: ido-pgsql
+      - name: icinga-server-api-users
+        configMap:
+          name: icinga-server-api-users
+      - name: config
+        configMap:
+          name: config
+          defaultMode: 0755

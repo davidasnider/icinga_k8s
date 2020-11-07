@@ -1,0 +1,62 @@
+# Web FPM Services and pod
+apiVersion: v1
+kind: Service
+metadata:
+  name: icinga-web-fpm
+spec:
+  ports:
+    - port: 9000
+      name: web
+  selector:
+    app: icinga-web-fpm
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: icinga-web-fpm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: icinga-web-fpm
+  template:
+    metadata:
+      labels:
+        app: icinga-web-fpm
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm
+      initContainers:
+      - name: init-postgres-ido
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -zv -w 1 postgres-ido 5432; do echo waiting for postgres-ido; sleep 2; done;']
+      - name: init-postgres-web
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -zv -w 1 postgres-web 5432; do echo waiting for postgres-web; sleep 2; done;']
+      containers:
+      - name: icinga-php7-fpm
+        image: registry.thesniderpad.com/icinga-php7-fpm:latest
+        imagePullPolicy: Always
+        readinessProbe:
+          tcpSocket:
+            port: 9000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 9000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+          - mountPath: /etc/icingaweb2/resources.ini
+            name: config
+            subPath: resources.ini
+          - mountPath: /etc/icingaweb2/modules/monitoring/commandtransports.ini
+            name: config
+            subPath: commandtransports.ini
+      volumes:
+      - name: config
+        configMap:
+          name: config

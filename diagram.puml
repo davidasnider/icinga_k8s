@@ -1,0 +1,47 @@
+@startuml
+
+title Icinga Kubernetes Service
+
+actor User
+
+database "Semi Persistence Layer" #DDDDDD {
+    [MySQL IDO EmptyDir] as MySQLIDOEmpty
+    [MySQL Web EmptyDir] as MySQLWebEmpty
+}
+
+package "Icinga Server Pod" {
+  [icinga server] as icingaserver
+}
+
+package "Icinga Web Server" {
+  [icinga web] as icingaweb
+}
+
+package "Icinga PHP FPM Pod" {
+  [icinga php7 fpm] as icingaphp
+}
+
+package "MySQL IDO Pod" {
+    [mysql ido server] as mysqlido
+}
+
+package "MySQL Web Pod" {
+    [mysql web server] as mysqlweb
+}
+
+node "Namespace Secrets" {
+  [Default Password] as defaultpassword
+}
+
+User --> icingaweb
+icingaweb --> icingaserver : 5665
+icingaweb --> icingaphp : 9000
+icingaweb --> mysqlido : 3306
+icingaserver --> mysqlido : 3306
+icingaweb --> mysqlweb : 3306
+mysqlido --> MySQLIDOEmpty
+mysqlweb --> MySQLWebEmpty
+
+icingaserver --> defaultpassword
+mysqlido --> defaultpassword
+@enduml

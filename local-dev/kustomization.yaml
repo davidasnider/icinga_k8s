@@ -1,0 +1,18 @@
+---
+# Include bases
+bases:
+- ../bases
+
+# namespace to deploy all Resources to
+namespace: icinga
+
+patchesStrategicMerge:
+- localserv.yaml
+
+configMapGenerator:
+- name: nginx-webconfig
+  files:
+    - "nginx-default.conf"
+
+generatorOptions:
+  disableNameSuffixHash: true

@@ -1,0 +1,87 @@
+---
+# Use TLS and Fixed IP Address
+apiVersion: v1
+kind: Service
+metadata:
+  name: icinga-web
+  annotations:
+    metallb.universe.tf/allow-shared-ip: icinga-pri
+spec:
+  externalTrafficPolicy: Cluster
+  loadBalancerIP: 10.9.9.207
+  ports:
+  - port: 443
+    name: web
+
+---
+# Create the Icinga Server services
+apiVersion: v1
+kind: Service
+metadata:
+  name: icinga-server
+  annotations:
+    metallb.universe.tf/allow-shared-ip: icinga-pri
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
+  loadBalancerIP: 10.9.9.207
+
+---
+# Add a volume and volume mount to Icinga Server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: icinga-server
+spec:
+  template:
+    spec:
+      containers:
+      - name: icinga-server
+        env:
+        - name: ICINGA_URL
+          value: https://icinga-pri.thesniderpad.com
+        volumeMounts:
+          - mountPath: /var/lib/icinga2/api/packages/
+            name: icinga-server-volume
+          - mountPath: /etc/icinga2/conf.d
+            name: icinga-pri-config
+          - mountPath: /usr/local/bin
+            name: icinga-pri-bin
+      volumes:
+      - name: icinga-server-volume
+        # persistentVolumeClaim:
+        #   claimName: icinga-pri-pvc
+      - name: icinga-pri-config
+        nfs:
+        # URL for the NFS server
+          server: 10.9.0.6
+          path: /mnt/SEAGATE_3TB_SLOT2/docker/icinga_master/conf.d
+      - name: icinga-pri-bin
+        nfs:
+        # URL for the NFS server
+          server: 10.9.0.6
+          path: /mnt/SEAGATE_3TB_SLOT2/docker/icinga_master/bin
+      serviceAccount: kube-icinga
+      serviceAccountName: kube-icinga
+
+---
+# Add certificates
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: icinga-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: icinga-web
+  template:
+    metadata:
+      labels:
+        app: icinga-web
+    spec:
+      volumes:
+      - name: certificates
+        secret:
+          secretName: icinga-pri-thesniderpad-com-tls
