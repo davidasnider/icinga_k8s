@@ -27,7 +27,7 @@ RUN mkdir /run/icinga2
 RUN chown -R nagios:nagios /run/icinga2
 
 RUN icinga2 api setup --cn '*.thesniderpad.com'
-RUN icinga2 feature enable ido-pgsql
+# RUN icinga2 feature enable ido-pgsql
 ADD scripts /etc/icinga2/scripts
 
 EXPOSE 5665
