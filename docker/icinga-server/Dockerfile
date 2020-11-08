@@ -1,7 +1,9 @@
-ARG IMAGE=debian:buster
-FROM $IMAGE
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+FROM debian:buster
 LABEL maintainer="David Snider <david@davidsnider.org>"
 
+RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
 ENV ICINGA_VER=2.11.4-1.buster
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -26,10 +28,10 @@ RUN cd /tmp && \
 RUN mkdir /run/icinga2
 RUN chown -R nagios:nagios /run/icinga2
 
-RUN icinga2 api setup --cn '*.thesniderpad.com'
-# RUN icinga2 feature enable ido-pgsql
 ADD scripts /etc/icinga2/scripts
+ADD launch.sh /
+RUN chmod +x /launch.sh
 
 EXPOSE 5665
 
-CMD ["/usr/sbin/icinga2", "--no-stack-rlimit", "daemon", "-e", "/var/log/icinga2/icinga2.err", "-x", "notice"]
+CMD ["/launch.sh"]
