@@ -5,7 +5,7 @@ LABEL maintainer="David Snider <david@davidsnider.org>"
 
 RUN env
 RUN set
-ENV ICINGA_VER=2.11.4-1.buster
+ENV ICINGA_VER=2.12.1-1.buster
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
