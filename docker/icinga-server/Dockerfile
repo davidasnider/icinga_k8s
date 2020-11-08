@@ -3,7 +3,8 @@ ARG BUILDPLATFORM
 FROM debian:buster
 LABEL maintainer="David Snider <david@davidsnider.org>"
 
-RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
+RUN env
+RUN set
 ENV ICINGA_VER=2.11.4-1.buster
 
 ARG DEBIAN_FRONTEND=noninteractive
