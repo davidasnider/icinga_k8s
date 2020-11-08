@@ -1,8 +1,8 @@
-ARG IMAGE=debian:buster
-FROM $IMAGE
+FROM debian:buster
 LABEL maintainer="David Snider <david@davidsnider.org>"
 
-ENV ICINGA_VER=2.11.4-1.buster
+RUN dpkg --print-architecture
+ENV ICINGA_VER=2.12.1-1.buster
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
@@ -26,9 +26,9 @@ RUN cd /tmp && \
 RUN mkdir /run/icinga2
 RUN chown -R nagios:nagios /run/icinga2
 
+ADD scripts /etc/icinga2/scripts
 RUN icinga2 api setup --cn '*.thesniderpad.com'
 RUN icinga2 feature enable ido-pgsql
-ADD scripts /etc/icinga2/scripts
 
 EXPOSE 5665
 

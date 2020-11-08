@@ -1,0 +1,65 @@
+name: Test Build Merge Deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build-name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Branch name
+        run: echo running on branch ${{ github.event.pull_request.head.ref }}
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - uses: pre-commit/action@v2.0.0
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+      # Gitleaks check for secrets
+      - name: Gitleaks
+        uses: zricethezav/gitleaks-action@v1.1.4
+
+  pr-approve:
+    runs-on: ubuntu-latest
+    needs:
+      - pre-commit
+      - gitleaks
+    steps:
+      - uses: hmarr/auto-approve-action@v2.0.0
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+  label-pr:
+    runs-on: ubuntu-latest
+    needs:
+      - pr-approve
+    steps:
+      - uses: christianvuerings/add-labels@v1.1
+        with:
+          labels: |
+            automerge
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  automerge:
+    runs-on: ubuntu-latest
+    needs:
+      - label-pr
+    steps:
+      - name: automerge
+        uses: "pascalgn/automerge-action@v0.12.0"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
