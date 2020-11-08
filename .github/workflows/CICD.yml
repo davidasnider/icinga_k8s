@@ -75,7 +75,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-icinga-server
 
     steps:
       - name: Set version tags
@@ -124,7 +124,7 @@ jobs:
     needs:
       - pre-commit
       - gitleaks
-      - build
+      - build-icinga-server
       - deploy
     steps:
       - uses: hmarr/auto-approve-action@v2.0.0
