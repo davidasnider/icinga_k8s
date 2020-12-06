@@ -1,6 +1,15 @@
+# Intro
+
 This is Icinga designed for Kubernetes instead of Docker Compose.
 
-# Deployment
+## Updating Versions
+
+Unfortunately, the build on arm using buildkit fails with GitHub actions.
+Therefore, to update to a new version of Icinga, update the `/docker/build.sh`
+file with the new versions. Then merge the changes and run the script on an arm
+based system.
+
+## Deployment
 
 ![image](diagram.svg)
 
