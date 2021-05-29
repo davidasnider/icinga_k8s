@@ -3,7 +3,7 @@ kind: Certificate
 metadata:
   name: icinga-pri-thesniderpad-com
 spec:
-  secretName: icinga-pri-thesniderpad-com-tls
+  secretName: icinga-pri-thesniderpad-com-tls  # pragma: allowlist secret
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer

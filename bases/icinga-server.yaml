@@ -76,7 +76,7 @@ spec:
       volumes:
       - name: ido-pgsql
         secret:
-          secretName: ido-pgsql
+          secretName: ido-pgsql  # pragma: allowlist secret
       - name: icinga-server-api-users
         configMap:
           name: icinga-server-api-users
