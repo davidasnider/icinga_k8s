@@ -83,4 +83,4 @@ spec:
       volumes:
       - name: certificates
         secret:
-          secretName: icinga-sec-thesniderpad-com-tls
+          secretName: icinga-sec-thesniderpad-com-tls  # pragma: allowlist secret

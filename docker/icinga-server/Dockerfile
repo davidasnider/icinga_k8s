@@ -2,7 +2,7 @@ FROM debian:buster
 LABEL maintainer="David Snider <david@davidsnider.org>"
 
 RUN dpkg --print-architecture
-ENV ICINGA_VER=2.12.1-1.buster
+ENV ICINGA_VER=2.12.4-1.buster
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \

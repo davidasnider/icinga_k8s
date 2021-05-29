@@ -68,7 +68,7 @@ spec:
           name: nginx-webconfig
       - name: certificates
         secret:
-          secretName: icinga-pri-thesniderpad-com-tls
+          secretName: icinga-pri-thesniderpad-com-tls  # pragma: allowlist secret
           # defaultMode: 0400  # 0400
       - name: config
         configMap:
