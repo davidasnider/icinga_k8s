@@ -30,7 +30,7 @@ jobs:
           fetch-depth: "0"
       # Gitleaks check for secrets
       - name: Gitleaks
-        uses: zricethezav/gitleaks-action@v1.4.0
+        uses: zricethezav/gitleaks-action@v1.6.0
 
   pr-approve:
     runs-on: ubuntu-latest
