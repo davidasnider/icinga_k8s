@@ -12,26 +12,16 @@ repos:
       - id: check-json
       - id: pretty-format-json
       - id: detect-private-key
-  - repo: https://github.com/asottile/dead
-    rev: v1.4.0
-    hooks:
-      - id: dead
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.1.0
     hooks:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
         exclude: .*/tests/.*
-  - repo: https://github.com/ansible/ansible-lint.git
-    rev: v5.0.11
-    hooks:
-      - id: ansible-lint
-        files: \.(yaml|yml)$
   - repo: https://github.com/ambv/black
     rev: 21.5b1
     hooks:
       - id: black
-        language_version: python3.8
   - repo: https://gitlab.com/pycqa/flake8
     rev: "3.9.2"
     hooks:
