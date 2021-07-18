@@ -15,7 +15,8 @@ RUN apt-get update \
                        monitoring-plugins-standard nagios-plugins-contrib netbase \
                        monitoring-plugins-common icinga2-ido-pgsql=${ICINGA_VER} \
                        curl nagios-nrpe-plugin html2text nagios-snmp-plugins libtimedate-perl \
-                       python3-requests jq icinga2-bin=${ICINGA_VER} icinga2-common=${ICINGA_VER}
+                       python3-requests jq icinga2-bin=${ICINGA_VER} icinga2-common=${ICINGA_VER} \
+                       python2
 
 # Get Kubectl for kubernetes checks
 RUN cd /tmp && \
