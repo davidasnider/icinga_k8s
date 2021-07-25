@@ -2,8 +2,8 @@
 set -Eeuo
 
 #What version of Icinga Web should we use?
-ICINGA_VERSION=2.12.4
-ICINGAWEB=2.8.2
+ICINGA_VERSION=2.12.5
+ICINGAWEB=2.9.0
 ICINGA_SOURCE_URL=https://github.com/Icinga/icinga2/archive/v${ICINGA_VERSION}.tar.gz
 
 # Get latest icingaweb
