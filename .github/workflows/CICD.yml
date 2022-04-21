@@ -9,21 +9,21 @@ jobs:
   build-name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
       - name: Branch name
         run: echo running on branch ${{ github.event.pull_request.head.ref }}
 
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
       - uses: actions/setup-python@v2
       - uses: pre-commit/action@v2.0.3
 
   gitleaks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
         with:
           fetch-depth: "0"
       # Gitleaks check for secrets
