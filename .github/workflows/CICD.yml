@@ -9,14 +9,14 @@ jobs:
   build-name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.2.0
+      - uses: actions/checkout@v3.3.0
       - name: Branch name
         run: echo running on branch ${{ github.event.pull_request.head.ref }}
 
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.2.0
+      - uses: actions/checkout@v3.3.0
       - uses: actions/setup-python@v4.4.0
       - uses: pre-commit/action@v3.0.0
 
