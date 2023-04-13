@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v3.5.1
+        uses: actions/checkout@v3.5.2
         with:
           fetch-depth: 0
       - name: Update date string
